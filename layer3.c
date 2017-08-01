@@ -19,9 +19,8 @@
  * $Id: layer3.c,v 1.43 2004/01/23 09:41:32 rob Exp $
  */
 
-# ifdef HAVE_CONFIG_H
+#include <pgmspace.h>
 #  include "config.h"
-# endif
 
 # include "global.h"
 
@@ -92,9 +91,9 @@ struct sideinfo {
  */
 static
 struct {
-  unsigned char slen1;
-  unsigned char slen2;
-} const sflen_table[16] = {
+  unsigned int slen1;
+  unsigned int slen2;
+} const sflen_table[16] PROGMEM = {
   { 0, 0 }, { 0, 1 }, { 0, 2 }, { 0, 3 },
   { 3, 0 }, { 1, 1 }, { 1, 2 }, { 1, 3 },
   { 2, 1 }, { 2, 2 }, { 2, 3 }, { 3, 1 },
@@ -106,7 +105,7 @@ struct {
  * derived from section 2.4.3.2 of ISO/IEC 13818-3
  */
 static
-unsigned char const nsfb_table[6][3][4] = {
+unsigned int const nsfb_table[6][3][4] PROGMEM = {
   { {  6,  5,  5, 5 },
     {  9,  9,  9, 9 },
     {  6,  9,  9, 9 } },
@@ -137,46 +136,46 @@ unsigned char const nsfb_table[6][3][4] = {
  * derived from Table B.8 of ISO/IEC 11172-3
  */
 static
-unsigned char const sfb_48000_long[] = {
+unsigned int const sfb_48000_long[] PROGMEM = {
    4,  4,  4,  4,  4,  4,  6,  6,  6,   8,  10,
   12, 16, 18, 22, 28, 34, 40, 46, 54,  54, 192
 };
 
 static
-unsigned char const sfb_44100_long[] = {
+unsigned int const sfb_44100_long[] PROGMEM = {
    4,  4,  4,  4,  4,  4,  6,  6,  8,   8,  10,
   12, 16, 20, 24, 28, 34, 42, 50, 54,  76, 158
 };
 
 static
-unsigned char const sfb_32000_long[] = {
+unsigned int const sfb_32000_long[] PROGMEM = {
    4,  4,  4,  4,  4,  4,  6,  6,  8,  10,  12,
   16, 20, 24, 30, 38, 46, 56, 68, 84, 102,  26
 };
 
 static
-unsigned char const sfb_48000_short[] = {
+unsigned int const sfb_48000_short[] PROGMEM = {
    4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  6,
    6,  6,  6,  6,  6, 10, 10, 10, 12, 12, 12, 14, 14,
   14, 16, 16, 16, 20, 20, 20, 26, 26, 26, 66, 66, 66
 };
 
 static
-unsigned char const sfb_44100_short[] = {
+unsigned int const sfb_44100_short[] PROGMEM = {
    4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  6,
    6,  6,  8,  8,  8, 10, 10, 10, 12, 12, 12, 14, 14,
   14, 18, 18, 18, 22, 22, 22, 30, 30, 30, 56, 56, 56
 };
 
 static
-unsigned char const sfb_32000_short[] = {
+unsigned int const sfb_32000_short[] PROGMEM = {
    4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  6,
    6,  6,  8,  8,  8, 12, 12, 12, 16, 16, 16, 20, 20,
   20, 26, 26, 26, 34, 34, 34, 42, 42, 42, 12, 12, 12
 };
 
 static
-unsigned char const sfb_48000_mixed[] = {
+unsigned int const sfb_48000_mixed[] PROGMEM = {
   /* long */   4,  4,  4,  4,  4,  4,  6,  6,
   /* short */  4,  4,  4,  6,  6,  6,  6,  6,  6, 10,
               10, 10, 12, 12, 12, 14, 14, 14, 16, 16,
@@ -184,7 +183,7 @@ unsigned char const sfb_48000_mixed[] = {
 };
 
 static
-unsigned char const sfb_44100_mixed[] = {
+unsigned int const sfb_44100_mixed[] PROGMEM = {
   /* long */   4,  4,  4,  4,  4,  4,  6,  6,
   /* short */  4,  4,  4,  6,  6,  6,  8,  8,  8, 10,
               10, 10, 12, 12, 12, 14, 14, 14, 18, 18,
@@ -192,7 +191,7 @@ unsigned char const sfb_44100_mixed[] = {
 };
 
 static
-unsigned char const sfb_32000_mixed[] = {
+unsigned int const sfb_32000_mixed[] PROGMEM = {
   /* long */   4,  4,  4,  4,  4,  4,  6,  6,
   /* short */  4,  4,  4,  6,  6,  6,  8,  8,  8, 12,
               12, 12, 16, 16, 16, 20, 20, 20, 26, 26,
@@ -204,13 +203,13 @@ unsigned char const sfb_32000_mixed[] = {
  * derived from Table B.2 of ISO/IEC 13818-3
  */
 static
-unsigned char const sfb_24000_long[] = {
+unsigned int const sfb_24000_long[] PROGMEM = {
    6,  6,  6,  6,  6,  6,  8, 10, 12,  14,  16,
   18, 22, 26, 32, 38, 46, 54, 62, 70,  76,  36
 };
 
 static
-unsigned char const sfb_22050_long[] = {
+unsigned int const sfb_22050_long[] PROGMEM = {
    6,  6,  6,  6,  6,  6,  8, 10, 12,  14,  16,
   20, 24, 28, 32, 38, 46, 52, 60, 68,  58,  54
 };
@@ -218,28 +217,28 @@ unsigned char const sfb_22050_long[] = {
 # define sfb_16000_long  sfb_22050_long
 
 static
-unsigned char const sfb_24000_short[] = {
+unsigned int const sfb_24000_short[] PROGMEM = {
    4,  4,  4,  4,  4,  4,  4,  4,  4,  6,  6,  6,  8,
    8,  8, 10, 10, 10, 12, 12, 12, 14, 14, 14, 18, 18,
   18, 24, 24, 24, 32, 32, 32, 44, 44, 44, 12, 12, 12
 };
 
 static
-unsigned char const sfb_22050_short[] = {
+unsigned int const sfb_22050_short[] PROGMEM = {
    4,  4,  4,  4,  4,  4,  4,  4,  4,  6,  6,  6,  6,
    6,  6,  8,  8,  8, 10, 10, 10, 14, 14, 14, 18, 18,
   18, 26, 26, 26, 32, 32, 32, 42, 42, 42, 18, 18, 18
 };
 
 static
-unsigned char const sfb_16000_short[] = {
+unsigned int const sfb_16000_short[] PROGMEM = {
    4,  4,  4,  4,  4,  4,  4,  4,  4,  6,  6,  6,  8,
    8,  8, 10, 10, 10, 12, 12, 12, 14, 14, 14, 18, 18,
   18, 24, 24, 24, 30, 30, 30, 40, 40, 40, 18, 18, 18
 };
 
 static
-unsigned char const sfb_24000_mixed[] = {
+unsigned int const sfb_24000_mixed[] PROGMEM = {
   /* long */   6,  6,  6,  6,  6,  6,
   /* short */  6,  6,  6,  8,  8,  8, 10, 10, 10, 12,
               12, 12, 14, 14, 14, 18, 18, 18, 24, 24,
@@ -247,7 +246,7 @@ unsigned char const sfb_24000_mixed[] = {
 };
 
 static
-unsigned char const sfb_22050_mixed[] = {
+unsigned int const sfb_22050_mixed[] PROGMEM = {
   /* long */   6,  6,  6,  6,  6,  6,
   /* short */  6,  6,  6,  6,  6,  6,  8,  8,  8, 10,
               10, 10, 14, 14, 14, 18, 18, 18, 26, 26,
@@ -255,7 +254,7 @@ unsigned char const sfb_22050_mixed[] = {
 };
 
 static
-unsigned char const sfb_16000_mixed[] = {
+unsigned int const sfb_16000_mixed[] PROGMEM = {
   /* long */   6,  6,  6,  6,  6,  6,
   /* short */  6,  6,  6,  8,  8,  8, 10, 10, 10, 12,
               12, 12, 14, 14, 14, 18, 18, 18, 24, 24,
@@ -270,7 +269,7 @@ unsigned char const sfb_16000_mixed[] = {
 # define sfb_11025_long  sfb_12000_long
 
 static
-unsigned char const sfb_8000_long[] = {
+unsigned int const sfb_8000_long[] PROGMEM = {
   12, 12, 12, 12, 12, 12, 16, 20, 24,  28,  32,
   40, 48, 56, 64, 76, 90,  2,  2,  2,   2,   2
 };
@@ -279,7 +278,7 @@ unsigned char const sfb_8000_long[] = {
 # define sfb_11025_short  sfb_12000_short
 
 static
-unsigned char const sfb_8000_short[] = {
+unsigned int const sfb_8000_short[] PROGMEM = {
    8,  8,  8,  8,  8,  8,  8,  8,  8, 12, 12, 12, 16,
   16, 16, 20, 20, 20, 24, 24, 24, 28, 28, 28, 36, 36,
   36,  2,  2,  2,  2,  2,  2,  2,  2,  2, 26, 26, 26
@@ -291,7 +290,7 @@ unsigned char const sfb_8000_short[] = {
 /* the 8000 Hz short block scalefactor bands do not break after
    the first 36 frequency lines, so this is probably wrong */
 static
-unsigned char const sfb_8000_mixed[] = {
+unsigned int const sfb_8000_mixed[] PROGMEM = {
   /* long */  12, 12, 12,
   /* short */  4,  4,  4,  8,  8,  8, 12, 12, 12, 16, 16, 16,
               20, 20, 20, 24, 24, 24, 28, 28, 28, 36, 36, 36,
@@ -300,10 +299,10 @@ unsigned char const sfb_8000_mixed[] = {
 
 static
 struct {
-  unsigned char const *l;
-  unsigned char const *s;
-  unsigned char const *m;
-} const sfbwidth_table[9] = {
+  unsigned int const *l;
+  unsigned int const *s;
+  unsigned int const *m;
+} const sfbwidth_table[9] PROGMEM = {
   { sfb_48000_long, sfb_48000_short, sfb_48000_mixed },
   { sfb_44100_long, sfb_44100_short, sfb_44100_mixed },
   { sfb_32000_long, sfb_32000_short, sfb_32000_mixed },
@@ -320,7 +319,7 @@ struct {
  * derived from Table B.6 of ISO/IEC 11172-3
  */
 static
-unsigned char const pretab[22] = {
+unsigned int const pretab[22] PROGMEM = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 3, 3, 2, 0
 };
 
@@ -333,8 +332,8 @@ static
 struct fixedfloat {
   unsigned long mantissa  : 27;
   unsigned short exponent :  5;
-} const rq_table[8207] = {
-# include "rq_table.dat"
+} const rq_table[8207] PROGMEM = {
+# include "rq_table.dat.h"
 };
 
 /*
@@ -387,7 +386,7 @@ mad_fixed_t const ca[8] = {
  */
 static
 mad_fixed_t const imdct_s[6][6] = {
-# include "imdct_s.dat"
+# include "imdct_s.dat.h"
 };
 
 # if !defined(ASO_IMDCT)
@@ -464,7 +463,7 @@ mad_fixed_t const is_table[7] = {
  * is_lsf_table[1][i] = (1 /      sqrt(2)) ^(i + 1)
  */
 static
-mad_fixed_t const is_lsf_table[2][15] = {
+mad_fixed_t const is_lsf_table[2][15] PROGMEM = {
   {
     MAD_F(0x0d744fcd) /* 0.840896415 */,
     MAD_F(0x0b504f33) /* 0.707106781 */,
@@ -512,6 +511,7 @@ enum mad_error III_sideinfo(struct mad_bitptr *ptr, unsigned int nch,
 {
   unsigned int ngr, gr, ch, i;
   enum mad_error result = MAD_ERROR_NONE;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
   *data_bitlen = 0;
   *priv_bitlen = lsf ? ((nch == 1) ? 1 : 2) : ((nch == 1) ? 5 : 3);
@@ -602,7 +602,8 @@ unsigned int III_scalefactors_lsf(struct mad_bitptr *ptr,
 {
   struct mad_bitptr start;
   unsigned int scalefac_compress, index, slen[4], part, n, i;
-  unsigned char const *nsfb;
+  unsigned int const *nsfb;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
   start = *ptr;
 
@@ -716,6 +717,7 @@ unsigned int III_scalefactors(struct mad_bitptr *ptr, struct channel *channel,
 {
   struct mad_bitptr start;
   unsigned int slen1, slen2, sfbi;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
   start = *ptr;
 
@@ -810,10 +812,11 @@ unsigned int III_scalefactors(struct mad_bitptr *ptr, struct channel *channel,
  */
 static
 void III_exponents(struct channel const *channel,
-		   unsigned char const *sfbwidth, signed int exponents[39])
+		   unsigned int const *sfbwidth, signed int exponents[39])
 {
   signed int gain;
   unsigned int scalefac_multiplier, sfbi;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
   gain = (signed int) channel->global_gain - 210;
   scalefac_multiplier = (channel->flags & scalefac_scale) ? 2 : 1;
@@ -884,14 +887,15 @@ mad_fixed_t III_requantize(unsigned int value, signed int exp)
 {
   mad_fixed_t requantized;
   signed int frac;
-  struct fixedfloat const *power;
+  struct fixedfloat power;
 
+stack(__FUNCTION__, __FILE__, __LINE__);
   frac = exp % 4;  /* assumes sign(frac) == sign(exp) */
   exp /= 4;
 
-  power = &rq_table[value];
-  requantized = power->mantissa;
-  exp += power->exponent;
+  *(uint32_t*)&power = *(uint32_t*)&rq_table[value]; //memcpy_P(&power, &rq_table[value], sizeof(power)); // Avoid byte access to PROGMEM
+  requantized = power.mantissa;
+  exp += power.exponent;
 
   if (exp < 0) {
     if (-exp >= sizeof(mad_fixed_t) * CHAR_BIT) {
@@ -915,7 +919,6 @@ mad_fixed_t III_requantize(unsigned int value, signed int exp)
     else
       requantized <<= exp;
   }
-
   return frac ? mad_f_mul(requantized, root_table[3 + frac]) : requantized;
 }
 
@@ -932,7 +935,7 @@ mad_fixed_t III_requantize(unsigned int value, signed int exp)
 static
 enum mad_error III_huffdecode(struct mad_bitptr *ptr, mad_fixed_t xr[576],
 			      struct channel *channel,
-			      unsigned char const *sfbwidth,
+			      unsigned int const *sfbwidth,
 			      unsigned int part2_length)
 {
   signed int exponents[39], exp;
@@ -943,6 +946,7 @@ enum mad_error III_huffdecode(struct mad_bitptr *ptr, mad_fixed_t xr[576],
   mad_fixed_t const *sfbound;
   register unsigned long bitcache;
 
+stack(__FUNCTION__, __FILE__, __LINE__);
   bits_left = (signed) channel->part2_3_length - (signed) part2_length;
   if (bits_left < 0)
     return MAD_ERROR_BADPART3LEN;
@@ -1279,10 +1283,11 @@ enum mad_error III_huffdecode(struct mad_bitptr *ptr, mad_fixed_t xr[576],
  */
 static
 void III_reorder(mad_fixed_t xr[576], struct channel const *channel,
-		 unsigned char const sfbwidth[39])
+		 unsigned int const sfbwidth[39])
 {
   mad_fixed_t tmp[32][3][6];
   unsigned int sb, l, f, w, sbw[3], sw[3];
+stack(__FUNCTION__, __FILE__, __LINE__);
 
   /* this is probably wrong for 8000 Hz mixed blocks */
 
@@ -1328,10 +1333,11 @@ static
 enum mad_error III_stereo(mad_fixed_t xr[2][576],
 			  struct granule const *granule,
 			  struct mad_header *header,
-			  unsigned char const *sfbwidth)
+			  unsigned int const *sfbwidth)
 {
   short modes[39];
   unsigned int sfbi, l, n, i;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
   if (granule->ch[0].block_type !=
       granule->ch[1].block_type ||
@@ -1542,6 +1548,7 @@ void III_aliasreduce(mad_fixed_t xr[576], int lines)
 {
   mad_fixed_t const *bound;
   int i;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
   bound = &xr[lines];
   for (xr += 18; xr < bound; xr += 18) {
@@ -1649,6 +1656,7 @@ void sdctII(mad_fixed_t const x[18], mad_fixed_t X[18])
 {
   mad_fixed_t tmp[9];
   int i;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
   /* scale[i] = 2 * cos(PI * (2 * i + 1) / (2 * 18)) */
   static mad_fixed_t const scale[9] = {
@@ -1694,6 +1702,7 @@ void dctIV(mad_fixed_t const y[18], mad_fixed_t X[18])
 {
   mad_fixed_t tmp[18];
   int i;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
   /* scale[i] = 2 * cos(PI * (2 * i + 1) / (4 * 18)) */
   static mad_fixed_t const scale[18] = {
@@ -1738,6 +1747,7 @@ void imdct36(mad_fixed_t const x[18], mad_fixed_t y[36])
 {
   mad_fixed_t tmp[18];
   int i;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
   /* DCT-IV */
 
@@ -2063,6 +2073,7 @@ void III_imdct_l(mad_fixed_t const X[18], mad_fixed_t z[36],
 		 unsigned int block_type)
 {
   unsigned int i;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
   /* IMDCT */
 
@@ -2153,6 +2164,7 @@ void III_imdct_s(mad_fixed_t const X[18], mad_fixed_t z[36])
   int w, i;
   register mad_fixed64hi_t hi;
   register mad_fixed64lo_t lo;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
   /* IMDCT */
 
@@ -2229,6 +2241,7 @@ void III_overlap(mad_fixed_t const output[36], mad_fixed_t overlap[18],
 		 mad_fixed_t sample[18][32], unsigned int sb)
 {
   unsigned int i;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
 # if defined(ASO_INTERLEAVE2)
   {
@@ -2316,6 +2329,7 @@ static
 void III_freqinver(mad_fixed_t sample[18][32], unsigned int sb)
 {
   unsigned int i;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
 # if 1 || defined(ASO_INTERLEAVE1) || defined(ASO_INTERLEAVE2)
   {
@@ -2346,13 +2360,14 @@ void III_freqinver(mad_fixed_t sample[18][32], unsigned int sb)
  * NAME:	III_decode()
  * DESCRIPTION:	decode frame main_data
  */
+static mad_fixed_t xr[2][576];
 static
 enum mad_error III_decode(struct mad_bitptr *ptr, struct mad_frame *frame,
 			  struct sideinfo *si, unsigned int nch)
 {
   struct mad_header *header = &frame->header;
   unsigned int sfreqi, ngr, gr;
-
+stack(__FUNCTION__, __FILE__, __LINE__);
   {
     unsigned int sfreq;
 
@@ -2375,8 +2390,8 @@ enum mad_error III_decode(struct mad_bitptr *ptr, struct mad_frame *frame,
 
   for (gr = 0; gr < ngr; ++gr) {
     struct granule *granule = &si->gr[gr];
-    unsigned char const *sfbwidth[2];
-    mad_fixed_t xr[2][576];
+    unsigned int const *sfbwidth[2];
+    //mad_fixed_t xr[2][576]; // She's muc too big for me
     unsigned int ch;
     enum mad_error error;
 
@@ -2523,7 +2538,7 @@ int mad_layer_III(struct mad_stream *stream, struct mad_frame *frame)
   struct sideinfo si;
   enum mad_error error;
   int result = 0;
-
+stack(__FUNCTION__, __FILE__, __LINE__);
   /* allocate Layer III dynamic structures */
 
   if (stream->main_data == 0) {

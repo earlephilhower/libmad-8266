@@ -19,9 +19,8 @@
  * $Id: huffman.c,v 1.10 2004/01/23 09:41:32 rob Exp $
  */
 
-# ifdef HAVE_CONFIG_H
+#include <pgmspace.h>
 #  include "config.h"
-# endif
 
 # include "global.h"
 
@@ -50,7 +49,7 @@
 # endif
 
 static
-union huffquad const hufftabA[] = {
+const union huffquad const hufftabA[] PROGMEM = {
   /* 0000 */ PTR(16, 2),
   /* 0001 */ PTR(20, 2),
   /* 0010 */ PTR(24, 1),
@@ -90,7 +89,7 @@ union huffquad const hufftabA[] = {
 };
 
 static
-union huffquad const hufftabB[] = {
+const union huffquad const hufftabB[] PROGMEM = {
   /* 0000 */ V(1, 1, 1, 1, 4),
   /* 0001 */ V(1, 1, 1, 0, 4),
   /* 0010 */ V(1, 1, 0, 1, 4),
@@ -126,12 +125,12 @@ union huffquad const hufftabB[] = {
 # endif
 
 static
-union huffpair const hufftab0[] = {
+const union huffpair const hufftab0[]  PROGMEM = {
   /*      */ V(0, 0, 0)
 };
 
 static
-union huffpair const hufftab1[] = {
+const union huffpair const hufftab1[]  PROGMEM = {
   /* 000  */ V(1, 1, 3),
   /* 001  */ V(0, 1, 3),
   /* 010  */ V(1, 0, 2),
@@ -143,7 +142,7 @@ union huffpair const hufftab1[] = {
 };
 
 static
-union huffpair const hufftab2[] = {
+const union huffpair const hufftab2[]  PROGMEM = {
   /* 000  */ PTR(8, 3),
   /* 001  */ V(1, 1, 3),
   /* 010  */ V(0, 1, 3),
@@ -165,7 +164,7 @@ union huffpair const hufftab2[] = {
 };
 
 static
-union huffpair const hufftab3[] = {
+const union huffpair const hufftab3[]  PROGMEM = {
   /* 000  */ PTR(8, 3),
   /* 001  */ V(1, 0, 3),
   /* 010  */ V(1, 1, 2),
@@ -187,7 +186,7 @@ union huffpair const hufftab3[] = {
 };
 
 static
-union huffpair const hufftab5[] = {
+const union huffpair const hufftab5[]  PROGMEM = {
   /* 000  */ PTR(8, 4),
   /* 001  */ V(1, 1, 3),
   /* 010  */ V(0, 1, 3),
@@ -221,7 +220,7 @@ union huffpair const hufftab5[] = {
 };
 
 static
-union huffpair const hufftab6[] = {
+const union huffpair const hufftab6[]  PROGMEM = {
   /* 0000 */ PTR(16, 3),
   /* 0001 */ PTR(24, 1),
   /* 0010 */ PTR(26, 1),
@@ -259,7 +258,7 @@ union huffpair const hufftab6[] = {
 };
 
 static
-union huffpair const hufftab7[] = {
+const union huffpair const hufftab7[]  PROGMEM = {
   /* 0000 */ PTR(16, 4),
   /* 0001 */ PTR(32, 4),
   /* 0010 */ PTR(48, 2),
@@ -346,7 +345,7 @@ union huffpair const hufftab7[] = {
 /* this version saves 8 entries (16 bytes) at the expense of
    an extra lookup in 4 out of 36 cases */
 static
-union huffpair const hufftab8[] = {
+union huffpair const hufftab8[]  PROGMEM = {
   /* 0000 */ PTR(16, 4),
   /* 0001 */ PTR(32, 2),
   /* 0010 */ V(1, 2, 4),
@@ -424,7 +423,7 @@ union huffpair const hufftab8[] = {
 };
 # else
 static
-union huffpair const hufftab8[] = {
+const union huffpair const hufftab8[]  PROGMEM = {
   /* 0000 */ PTR(16, 4),
   /* 0001 */ PTR(32, 4),
   /* 0010 */ V(1, 2, 4),
@@ -509,7 +508,7 @@ union huffpair const hufftab8[] = {
 # endif
 
 static
-union huffpair const hufftab9[] = {
+const union huffpair const hufftab9[]  PROGMEM = {
   /* 0000 */ PTR(16, 4),
   /* 0001 */ PTR(32, 3),
   /* 0010 */ PTR(40, 2),
@@ -581,7 +580,7 @@ union huffpair const hufftab9[] = {
 };
 
 static
-union huffpair const hufftab10[] = {
+const union huffpair const hufftab10[]  PROGMEM = {
   /* 0000 */ PTR(16, 4),
   /* 0001 */ PTR(32, 4),
   /* 0010 */ PTR(48, 2),
@@ -719,7 +718,7 @@ union huffpair const hufftab10[] = {
 };
 
 static
-union huffpair const hufftab11[] = {
+const union huffpair const hufftab11[]  PROGMEM = {
   /* 0000 */ PTR(16, 4),
   /* 0001 */ PTR(32, 4),
   /* 0010 */ PTR(48, 4),
@@ -855,7 +854,7 @@ union huffpair const hufftab11[] = {
 };
 
 static
-union huffpair const hufftab12[] = {
+const union huffpair const hufftab12[]  PROGMEM = {
   /* 0000 */ PTR(16, 4),
   /* 0001 */ PTR(32, 4),
   /* 0010 */ PTR(48, 4),
@@ -983,7 +982,7 @@ union huffpair const hufftab12[] = {
 };
 
 static
-union huffpair const hufftab13[] = {
+const union huffpair const hufftab13[]  PROGMEM = {
   /* 0000 */ PTR(16, 4),
   /* 0001 */ PTR(32, 4),
   /* 0010 */ PTR(48, 4),
@@ -1509,7 +1508,7 @@ union huffpair const hufftab13[] = {
 };
 
 static
-union huffpair const hufftab15[] = {
+const union huffpair const hufftab15[]  PROGMEM = {
   /* 0000 */ PTR(16, 4),
   /* 0001 */ PTR(32, 4),
   /* 0010 */ PTR(48, 4),
@@ -2017,7 +2016,7 @@ union huffpair const hufftab15[] = {
 };
 
 static
-union huffpair const hufftab16[] = {
+const union huffpair const hufftab16[]  PROGMEM = {
   /* 0000 */ PTR(16, 4),
   /* 0001 */ PTR(32, 4),
   /* 0010 */ PTR(48, 4),
@@ -2551,7 +2550,7 @@ union huffpair const hufftab16[] = {
 };
 
 static
-union huffpair const hufftab24[] = {
+const union huffpair const hufftab24[]  PROGMEM = {
   /* 0000 */ PTR(16, 4),
   /* 0001 */ PTR(32, 4),
   /* 0010 */ PTR(48, 4),
@@ -3073,7 +3072,7 @@ union huffpair const hufftab24[] = {
 
 union huffquad const *const mad_huff_quad_table[2] = { hufftabA, hufftabB };
 
-struct hufftable const mad_huff_pair_table[32] = {
+const struct hufftable const mad_huff_pair_table[32] PROGMEM = {
   /*  0 */ { hufftab0,   0, 0 },
   /*  1 */ { hufftab1,   0, 3 },
   /*  2 */ { hufftab2,   0, 3 },

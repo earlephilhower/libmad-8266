@@ -19,9 +19,8 @@
  * $Id: synth.c,v 1.25 2004/01/23 09:41:33 rob Exp $
  */
 
-# ifdef HAVE_CONFIG_H
+#include <pgmspace.h>
 #  include "config.h"
-# endif
 
 # include "global.h"
 
@@ -51,6 +50,7 @@ void mad_synth_init(struct mad_synth *synth)
 void mad_synth_mute(struct mad_synth *synth)
 {
   unsigned int ch, s, v;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
   for (ch = 0; ch < 2; ++ch) {
     for (s = 0; s < 16; ++s) {
@@ -146,7 +146,7 @@ void dct32(mad_fixed_t const in[32], unsigned int slot,
   mad_fixed_t t160, t161, t162, t163, t164, t165, t166, t167;
   mad_fixed_t t168, t169, t170, t171, t172, t173, t174, t175;
   mad_fixed_t t176;
-
+stack(__FUNCTION__, __FILE__, __LINE__);
   /* costab[i] = cos(PI / (2 * 32) * i) */
 
 # if defined(OPT_DCTO)
@@ -542,8 +542,8 @@ void dct32(mad_fixed_t const in[32], unsigned int slot,
 # endif
 
 static
-mad_fixed_t const D[17][32] = {
-# include "D.dat"
+mad_fixed_t const D[17][32] PROGMEM = {
+# include "D.dat.h"
 };
 
 # if defined(ASO_SYNTH)
@@ -565,6 +565,7 @@ void synth_full(struct mad_synth *synth, struct mad_frame const *frame,
   register mad_fixed_t const (*Dptr)[32], *ptr;
   register mad_fixed64hi_t hi;
   register mad_fixed64lo_t lo;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
   for (ch = 0; ch < nch; ++ch) {
     sbsample = &frame->sbsample[ch];
@@ -702,6 +703,7 @@ void synth_half(struct mad_synth *synth, struct mad_frame const *frame,
   register mad_fixed_t const (*Dptr)[32], *ptr;
   register mad_fixed64hi_t hi;
   register mad_fixed64lo_t lo;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
   for (ch = 0; ch < nch; ++ch) {
     sbsample = &frame->sbsample[ch];

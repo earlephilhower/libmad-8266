@@ -19,9 +19,8 @@
  * $Id: stream.c,v 1.12 2004/02/05 09:02:39 rob Exp $
  */
 
-# ifdef HAVE_CONFIG_H
+#include <pgmspace.h>
 #  include "config.h"
-# endif
 
 # include "global.h"
 
@@ -36,6 +35,7 @@
  */
 void mad_stream_init(struct mad_stream *stream)
 {
+stack(__FUNCTION__, __FILE__, __LINE__);
   stream->buffer     = 0;
   stream->bufend     = 0;
   stream->skiplen    = 0;
@@ -63,6 +63,7 @@ void mad_stream_init(struct mad_stream *stream)
  */
 void mad_stream_finish(struct mad_stream *stream)
 {
+stack(__FUNCTION__, __FILE__, __LINE__);
   if (stream->main_data) {
     free(stream->main_data);
     stream->main_data = 0;
@@ -79,6 +80,7 @@ void mad_stream_finish(struct mad_stream *stream)
 void mad_stream_buffer(struct mad_stream *stream,
 		       unsigned char const *buffer, unsigned long length)
 {
+stack(__FUNCTION__, __FILE__, __LINE__);
   stream->buffer = buffer;
   stream->bufend = buffer + length;
 
@@ -96,6 +98,7 @@ void mad_stream_buffer(struct mad_stream *stream,
  */
 void mad_stream_skip(struct mad_stream *stream, unsigned long length)
 {
+stack(__FUNCTION__, __FILE__, __LINE__);
   stream->skiplen += length;
 }
 
@@ -106,6 +109,7 @@ void mad_stream_skip(struct mad_stream *stream, unsigned long length)
 int mad_stream_sync(struct mad_stream *stream)
 {
   register unsigned char const *ptr, *end;
+stack(__FUNCTION__, __FILE__, __LINE__);
 
   ptr = mad_bit_nextbyte(&stream->ptr);
   end = stream->bufend;
@@ -128,33 +132,34 @@ int mad_stream_sync(struct mad_stream *stream)
  */
 char const *mad_stream_errorstr(struct mad_stream const *stream)
 {
+stack(__FUNCTION__, __FILE__, __LINE__);
   switch (stream->error) {
-  case MAD_ERROR_NONE:		 return "no error";
+  case MAD_ERROR_NONE:		 return PSTR("no error");
 
-  case MAD_ERROR_BUFLEN:	 return "input buffer too small (or EOF)";
-  case MAD_ERROR_BUFPTR:	 return "invalid (null) buffer pointer";
+  case MAD_ERROR_BUFLEN:	 return PSTR("input buffer too small (or EOF)");
+  case MAD_ERROR_BUFPTR:	 return PSTR("invalid (null) buffer pointer");
 
-  case MAD_ERROR_NOMEM:		 return "not enough memory";
+  case MAD_ERROR_NOMEM:		 return PSTR("not enough memory");
 
-  case MAD_ERROR_LOSTSYNC:	 return "lost synchronization";
-  case MAD_ERROR_BADLAYER:	 return "reserved header layer value";
-  case MAD_ERROR_BADBITRATE:	 return "forbidden bitrate value";
-  case MAD_ERROR_BADSAMPLERATE:	 return "reserved sample frequency value";
-  case MAD_ERROR_BADEMPHASIS:	 return "reserved emphasis value";
+  case MAD_ERROR_LOSTSYNC:	 return PSTR("lost synchronization");
+  case MAD_ERROR_BADLAYER:	 return PSTR("reserved header layer value");
+  case MAD_ERROR_BADBITRATE:	 return PSTR("forbidden bitrate value");
+  case MAD_ERROR_BADSAMPLERATE:	 return PSTR("reserved sample frequency value");
+  case MAD_ERROR_BADEMPHASIS:	 return PSTR("reserved emphasis value");
 
-  case MAD_ERROR_BADCRC:	 return "CRC check failed";
-  case MAD_ERROR_BADBITALLOC:	 return "forbidden bit allocation value";
-  case MAD_ERROR_BADSCALEFACTOR: return "bad scalefactor index";
-  case MAD_ERROR_BADMODE:	 return "bad bitrate/mode combination";
-  case MAD_ERROR_BADFRAMELEN:	 return "bad frame length";
-  case MAD_ERROR_BADBIGVALUES:	 return "bad big_values count";
-  case MAD_ERROR_BADBLOCKTYPE:	 return "reserved block_type";
-  case MAD_ERROR_BADSCFSI:	 return "bad scalefactor selection info";
-  case MAD_ERROR_BADDATAPTR:	 return "bad main_data_begin pointer";
-  case MAD_ERROR_BADPART3LEN:	 return "bad audio data length";
-  case MAD_ERROR_BADHUFFTABLE:	 return "bad Huffman table select";
-  case MAD_ERROR_BADHUFFDATA:	 return "Huffman data overrun";
-  case MAD_ERROR_BADSTEREO:	 return "incompatible block_type for JS";
+  case MAD_ERROR_BADCRC:	 return PSTR("CRC check failed");
+  case MAD_ERROR_BADBITALLOC:	 return PSTR("forbidden bit allocation value");
+  case MAD_ERROR_BADSCALEFACTOR: return PSTR("bad scalefactor index");
+  case MAD_ERROR_BADMODE:	 return PSTR("bad bitrate/mode combination");
+  case MAD_ERROR_BADFRAMELEN:	 return PSTR("bad frame length");
+  case MAD_ERROR_BADBIGVALUES:	 return PSTR("bad big_values count");
+  case MAD_ERROR_BADBLOCKTYPE:	 return PSTR("reserved block_type");
+  case MAD_ERROR_BADSCFSI:	 return PSTR("bad scalefactor selection info");
+  case MAD_ERROR_BADDATAPTR:	 return PSTR("bad main_data_begin pointer");
+  case MAD_ERROR_BADPART3LEN:	 return PSTR("bad audio data length");
+  case MAD_ERROR_BADHUFFTABLE:	 return PSTR("bad Huffman table select");
+  case MAD_ERROR_BADHUFFDATA:	 return PSTR("Huffman data overrun");
+  case MAD_ERROR_BADSTEREO:	 return PSTR("incompatible block_type for JS");
   }
 
   return 0;

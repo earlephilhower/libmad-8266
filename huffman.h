@@ -22,42 +22,45 @@
 # ifndef LIBMAD_HUFFMAN_H
 # define LIBMAD_HUFFMAN_H
 
+// Use ints instead of bitfields. This'll make the structure way larger, but allow
+// for easy direct access w/o any helper functions when placed in PROGMEM
+
 union huffquad {
   struct {
-    unsigned short final  :  1;
-    unsigned short bits   :  3;
-    unsigned short offset : 12;
+    unsigned int final;
+    unsigned int bits;
+    unsigned int offset;
   } ptr;
   struct {
-    unsigned short final  :  1;
-    unsigned short hlen   :  3;
-    unsigned short v      :  1;
-    unsigned short w      :  1;
-    unsigned short x      :  1;
-    unsigned short y      :  1;
+    unsigned int final;
+    unsigned int hlen;
+    unsigned int v;
+    unsigned int w;
+    unsigned int x;
+    unsigned int y;
   } value;
-  unsigned short final    :  1;
+  unsigned int final ;
 };
 
 union huffpair {
   struct {
-    unsigned short final  :  1;
-    unsigned short bits   :  3;
-    unsigned short offset : 12;
+    unsigned int final;
+    unsigned int bits;
+    unsigned int offset;
   } ptr;
   struct {
-    unsigned short final  :  1;
-    unsigned short hlen   :  3;
-    unsigned short x      :  4;
-    unsigned short y      :  4;
+    unsigned int final;
+    unsigned int hlen;
+    unsigned int x;
+    unsigned int y;
   } value;
-  unsigned short final    :  1;
+  unsigned int final;
 };
 
 struct hufftable {
   union huffpair const *table;
-  unsigned short linbits;
-  unsigned short startbits;
+  unsigned int linbits;
+  unsigned int startbits;
 };
 
 extern union huffquad const *const mad_huff_quad_table[2];

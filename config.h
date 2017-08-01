@@ -11,7 +11,7 @@
 #define HAVE_ASSERT_H 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-#define HAVE_DLFCN_H 1
+#undef HAVE_DLFCN_H
 
 /* Define to 1 if you have the <errno.h> header file. */
 #undef HAVE_ERRNO_H
@@ -33,6 +33,8 @@
 
 /* Define if your MIPS CPU supports a 2-operand MADD16 instruction. */
 /* #undef HAVE_MADD16_ASM */
+
+#define FPM_DEFAULT 1
 
 /* Define if your MIPS CPU supports a 2-operand MADD instruction. */
 #define HAVE_MADD_ASM 1
@@ -121,7 +123,7 @@
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */
-#define WORDS_BIGENDIAN 1
+#undef WORDS_BIGENDIAN
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */
