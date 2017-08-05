@@ -1281,11 +1281,11 @@ stack(__FUNCTION__, __FILE__, __LINE__);
  * NAME:	III_reorder()
  * DESCRIPTION:	reorder frequency lines of a short block into subband order
  */
+static mad_fixed_t tmp[32][3][6]; // Move out to save stack in III_reorder
 static
 void III_reorder(mad_fixed_t xr[576], struct channel const *channel,
 		 unsigned int const sfbwidth[39])
 {
-  mad_fixed_t tmp[32][3][6];
   unsigned int sb, l, f, w, sbw[3], sw[3];
 stack(__FUNCTION__, __FILE__, __LINE__);
 
