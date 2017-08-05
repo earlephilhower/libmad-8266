@@ -39,6 +39,8 @@ class AudioFileSourceSPIFFS : public AudioFileSource
     virtual bool close() override;
     virtual bool isOpen() override;
     virtual uint32_t getSize() override;
+    virtual uint32_t getPos() override { if (!f) return 0; else return f.position(); };
+
   private:
     File f;
 };

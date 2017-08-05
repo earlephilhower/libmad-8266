@@ -29,12 +29,13 @@ extern "C" {
 class Buffer
 {
   public:
-    Buffer() { lastRate=0; lastChannels=0; }
-    unsigned char space[2000];
+    Buffer() { lastRate=0; lastChannels=0; lastReadPos = 0;}
+    unsigned char space[2048];
     AudioFileSourceSPIFFS file;
     AudioOutputI2SDAC i2sdac;
     int lastRate;
     int lastChannels;
+    int lastReadPos;
 };
 
 /*
@@ -57,6 +58,7 @@ static enum mad_flow input(void *data,
   if (unused == sizeof(buffer->space)) 
     return MAD_FLOW_STOP;
 
+  buffer->lastReadPos = buffer->file.getPos() - unused;
   int len = sizeof(buffer->space) - unused;
   len = buffer->file.read(buffer->space + unused, len);
   if (len == 0) return MAD_FLOW_STOP;
@@ -140,12 +142,11 @@ static enum mad_flow error(void *data,
                     struct mad_stream *stream,
                     struct mad_frame *frame)
 {
-  (void*)frame;
-  (void*)data;
+  Buffer *buffer = reinterpret_cast<Buffer *>(data);
   
   char err[64];
   strcpy_P(err, mad_stream_errorstr(stream));
-  Serial.printf("Decoding error 0x%04x (%s) at byte offset %p\n", stream->error, err, stream->this_frame);
+  Serial.printf("Decoding error 0x%04x (%s) at byte offset %p\n", stream->error, err, (stream->this_frame - buffer->space) + buffer->lastReadPos);
   Serial.flush();
   /* return MAD_FLOW_BREAK here to stop decoding (and propagate an error) */
 
