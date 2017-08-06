@@ -3,6 +3,7 @@
 #include "mad.h"
 #include "AudioFileSourceSPIFFS.h"
 #include "AudioOutputI2SDAC.h"
+#include "AudioOutputI2SNoDAC.h"
 
 extern "C" {
   #include <cont.h>

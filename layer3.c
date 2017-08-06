@@ -342,8 +342,9 @@ struct fixedfloat {
  *
  * root_table[3 + x] = 2^(x/4)
  */
-static
-mad_fixed_t const root_table[7] = {
+static inline mad_fixed_t root_table(int i)
+{
+static mad_fixed_t const root_table_val[7] PROGMEM = {
   MAD_F(0x09837f05) /* 2^(-3/4) == 0.59460355750136 */,
   MAD_F(0x0b504f33) /* 2^(-2/4) == 0.70710678118655 */,
   MAD_F(0x0d744fcd) /* 2^(-1/4) == 0.84089641525371 */,
@@ -352,7 +353,9 @@ mad_fixed_t const root_table[7] = {
   MAD_F(0x16a09e66) /* 2^(+2/4) == 1.41421356237310 */,
   MAD_F(0x1ae89f99) /* 2^(+3/4) == 1.68179283050743 */
 };
-
+  volatile uint32_t a = *(uint32_t*)&root_table_val[i];
+  return *(mad_fixed_t*)&a;
+}
 /*
  * coefficients for aliasing reduction
  * derived from Table B.9 of ISO/IEC 11172-3
@@ -361,21 +364,29 @@ mad_fixed_t const root_table[7] = {
  * cs[i] =    1 / sqrt(1 + c[i]^2)
  * ca[i] = c[i] / sqrt(1 + c[i]^2)
  */
-static
-mad_fixed_t const cs[8] = {
+static inline mad_fixed_t cs(int i)
+{
+static mad_fixed_t const cs_val[8] PROGMEM = {
   +MAD_F(0x0db84a81) /* +0.857492926 */, +MAD_F(0x0e1b9d7f) /* +0.881741997 */,
   +MAD_F(0x0f31adcf) /* +0.949628649 */, +MAD_F(0x0fbba815) /* +0.983314592 */,
   +MAD_F(0x0feda417) /* +0.995517816 */, +MAD_F(0x0ffc8fc8) /* +0.999160558 */,
   +MAD_F(0x0fff964c) /* +0.999899195 */, +MAD_F(0x0ffff8d3) /* +0.999993155 */
 };
+  volatile uint32_t a = *(uint32_t*)&cs_val[i];
+  return *(mad_fixed_t*)&a;
+}
 
-static
-mad_fixed_t const ca[8] = {
+static inline mad_fixed_t ca(int i)
+{
+static mad_fixed_t const ca_val[8] PROGMEM = {
   -MAD_F(0x083b5fe7) /* -0.514495755 */, -MAD_F(0x078c36d2) /* -0.471731969 */,
   -MAD_F(0x05039814) /* -0.313377454 */, -MAD_F(0x02e91dd1) /* -0.181913200 */,
   -MAD_F(0x0183603a) /* -0.094574193 */, -MAD_F(0x00a7cb87) /* -0.040965583 */,
   -MAD_F(0x003a2847) /* -0.014198569 */, -MAD_F(0x000f27b4) /* -0.003699975 */
 };
+  volatile uint32_t a = *(uint32_t*)&ca_val[i];
+  return *(mad_fixed_t*)&a;
+}
 
 /*
  * IMDCT coefficients for short blocks
@@ -396,8 +407,9 @@ mad_fixed_t const imdct_s[6][6] = {
  *
  * window_l[i] = sin((PI / 36) * (i + 1/2))
  */
-static
-mad_fixed_t const window_l[36] = {
+static mad_fixed_t window_l(int i)
+{
+static mad_fixed_t const window_l_val[36] PROGMEM = {
   MAD_F(0x00b2aa3e) /* 0.043619387 */, MAD_F(0x0216a2a2) /* 0.130526192 */,
   MAD_F(0x03768962) /* 0.216439614 */, MAD_F(0x04cfb0e2) /* 0.300705800 */,
   MAD_F(0x061f78aa) /* 0.382683432 */, MAD_F(0x07635284) /* 0.461748613 */,
@@ -419,6 +431,9 @@ mad_fixed_t const window_l[36] = {
   MAD_F(0x04cfb0e2) /* 0.300705800 */, MAD_F(0x03768962) /* 0.216439614 */,
   MAD_F(0x0216a2a2) /* 0.130526192 */, MAD_F(0x00b2aa3e) /* 0.043619387 */,
 };
+  volatile uint32_t a = *(uint32_t*)&window_l_val[i];
+  return *(mad_fixed_t*)&a;
+}
 # endif  /* ASO_IMDCT */
 
 /*
@@ -427,8 +442,9 @@ mad_fixed_t const window_l[36] = {
  *
  * window_s[i] = sin((PI / 12) * (i + 1/2))
  */
-static
-mad_fixed_t const window_s[12] = {
+static mad_fixed_t window_s(int i)
+{
+static mad_fixed_t const window_s_val[12] PROGMEM = {
   MAD_F(0x0216a2a2) /* 0.130526192 */, MAD_F(0x061f78aa) /* 0.382683432 */,
   MAD_F(0x09bd7ca0) /* 0.608761429 */, MAD_F(0x0cb19346) /* 0.793353340 */,
   MAD_F(0x0ec835e8) /* 0.923879533 */, MAD_F(0x0fdcf549) /* 0.991444861 */,
@@ -436,6 +452,9 @@ mad_fixed_t const window_s[12] = {
   MAD_F(0x0cb19346) /* 0.793353340 */, MAD_F(0x09bd7ca0) /* 0.608761429 */,
   MAD_F(0x061f78aa) /* 0.382683432 */, MAD_F(0x0216a2a2) /* 0.130526192 */,
 };
+  volatile uint32_t a = *(uint32_t*)&window_s_val[i];
+  return *(mad_fixed_t*)&a;
+}
 
 /*
  * coefficients for intensity stereo processing
@@ -444,8 +463,9 @@ mad_fixed_t const window_s[12] = {
  * is_ratio[i] = tan(i * (PI / 12))
  * is_table[i] = is_ratio[i] / (1 + is_ratio[i])
  */
-static
-mad_fixed_t const is_table[7] = {
+static inline mad_fixed_t is_table(int i)
+{
+static mad_fixed_t const is_table_val[7] PROGMEM = {
   MAD_F(0x00000000) /* 0.000000000 */,
   MAD_F(0x0361962f) /* 0.211324865 */,
   MAD_F(0x05db3d74) /* 0.366025404 */,
@@ -454,6 +474,9 @@ mad_fixed_t const is_table[7] = {
   MAD_F(0x0c9e69d1) /* 0.788675135 */,
   MAD_F(0x10000000) /* 1.000000000 */
 };
+  volatile uint32_t a = *(uint32_t*)&is_table_val[i];
+  return *(mad_fixed_t*)&a;
+}
 
 /*
  * coefficients for LSF intensity stereo processing
@@ -919,7 +942,7 @@ stack(__FUNCTION__, __FILE__, __LINE__);
     else
       requantized <<= exp;
   }
-  return frac ? mad_f_mul(requantized, root_table[3 + frac]) : requantized;
+  return frac ? mad_f_mul(requantized, root_table(3 + frac)) : requantized;
 }
 
 /* we must take care that sz >= bits and sz < sizeof(long) lest bits == 0 */
@@ -1502,8 +1525,8 @@ stack(__FUNCTION__, __FILE__, __LINE__);
 
 	  left = xr[0][l + i];
 
-	  xr[0][l + i] = mad_f_mul(left, is_table[    is_pos]);
-	  xr[1][l + i] = mad_f_mul(left, is_table[6 - is_pos]);
+	  xr[0][l + i] = mad_f_mul(left, is_table(    is_pos));
+	  xr[1][l + i] = mad_f_mul(left, is_table(6 - is_pos));
 	}
       }
     }
@@ -1516,7 +1539,7 @@ stack(__FUNCTION__, __FILE__, __LINE__);
 
     header->flags |= MAD_FLAG_MS_STEREO;
 
-    invsqrt2 = root_table[3 + -2];
+    invsqrt2 = root_table(3 + -2);
 
     for (sfbi = l = 0; l < 576; ++sfbi, l += n) {
       n = sfbwidth[sfbi];
@@ -1563,13 +1586,13 @@ stack(__FUNCTION__, __FILE__, __LINE__);
 # if defined(ASO_ZEROCHECK)
       if (a | b) {
 # endif
-	MAD_F_ML0(hi, lo,  a, cs[i]);
-	MAD_F_MLA(hi, lo, -b, ca[i]);
+	MAD_F_ML0(hi, lo,  a, cs(i));
+	MAD_F_MLA(hi, lo, -b, ca(i));
 
 	xr[-1 - i] = MAD_F_MLZ(hi, lo);
 
-	MAD_F_ML0(hi, lo,  b, cs[i]);
-	MAD_F_MLA(hi, lo,  a, ca[i]);
+	MAD_F_ML0(hi, lo,  b, cs(i));
+	MAD_F_MLA(hi, lo,  a, ca(i));
 
 	xr[     i] = MAD_F_MLZ(hi, lo);
 # if defined(ASO_ZEROCHECK)
@@ -1659,7 +1682,7 @@ void sdctII(mad_fixed_t const x[18], mad_fixed_t X[18])
 stack(__FUNCTION__, __FILE__, __LINE__);
 
   /* scale[i] = 2 * cos(PI * (2 * i + 1) / (2 * 18)) */
-  static mad_fixed_t const scale[9] = {
+  static mad_fixed_t const scale[9] PROGMEM = {
     MAD_F(0x1fe0d3b4), MAD_F(0x1ee8dd47), MAD_F(0x1d007930),
     MAD_F(0x1a367e59), MAD_F(0x16a09e66), MAD_F(0x125abcf8),
     MAD_F(0x0d8616bc), MAD_F(0x08483ee1), MAD_F(0x02c9fad7)
@@ -1680,9 +1703,10 @@ stack(__FUNCTION__, __FILE__, __LINE__);
   /* odd input butterfly and scaling */
 
   for (i = 0; i < 9; i += 3) {
-    tmp[i + 0] = mad_f_mul(x[i + 0] - x[18 - (i + 0) - 1], scale[i + 0]);
-    tmp[i + 1] = mad_f_mul(x[i + 1] - x[18 - (i + 1) - 1], scale[i + 1]);
-    tmp[i + 2] = mad_f_mul(x[i + 2] - x[18 - (i + 2) - 1], scale[i + 2]);
+    mad_fixed_t s;
+    s = *(volatile mad_fixed_t*)(volatile uint32_t*)&scale[i+0]; tmp[i + 0] = mad_f_mul(x[i + 0] - x[18 - (i + 0) - 1], s); //scale[i + 0]);
+    s = *(volatile mad_fixed_t*)(volatile uint32_t*)&scale[i+1]; tmp[i + 1] = mad_f_mul(x[i + 1] - x[18 - (i + 1) - 1], s); //scale[i + 1]);
+    s = *(volatile mad_fixed_t*)(volatile uint32_t*)&scale[i+2]; tmp[i + 2] = mad_f_mul(x[i + 2] - x[18 - (i + 2) - 1], s); //scale[i + 2]);
   }
 
   fastsdct(tmp, &X[1]);
@@ -1705,7 +1729,7 @@ void dctIV(mad_fixed_t const y[18], mad_fixed_t X[18])
 stack(__FUNCTION__, __FILE__, __LINE__);
 
   /* scale[i] = 2 * cos(PI * (2 * i + 1) / (4 * 18)) */
-  static mad_fixed_t const scale[18] = {
+  static mad_fixed_t const scale[18] PROGMEM = {
     MAD_F(0x1ff833fa), MAD_F(0x1fb9ea93), MAD_F(0x1f3dd120),
     MAD_F(0x1e84d969), MAD_F(0x1d906bcf), MAD_F(0x1c62648b),
     MAD_F(0x1afd100f), MAD_F(0x1963268b), MAD_F(0x1797c6a4),
@@ -1717,9 +1741,10 @@ stack(__FUNCTION__, __FILE__, __LINE__);
   /* scaling */
 
   for (i = 0; i < 18; i += 3) {
-    tmp[i + 0] = mad_f_mul(y[i + 0], scale[i + 0]);
-    tmp[i + 1] = mad_f_mul(y[i + 1], scale[i + 1]);
-    tmp[i + 2] = mad_f_mul(y[i + 2], scale[i + 2]);
+    mad_fixed_t s;
+    s = *(volatile mad_fixed_t*)(volatile uint32_t*)&scale[i+0]; tmp[i + 0] = mad_f_mul(y[i + 0], s); //scale[i + 0]);
+    s = *(volatile mad_fixed_t*)(volatile uint32_t*)&scale[i+1]; tmp[i + 1] = mad_f_mul(y[i + 1], s); //scale[i + 1]);
+    s = *(volatile mad_fixed_t*)(volatile uint32_t*)&scale[i+2]; tmp[i + 2] = mad_f_mul(y[i + 2], s); //scale[i + 2]);
   }
 
   /* SDCT-II */
@@ -2117,10 +2142,10 @@ stack(__FUNCTION__, __FILE__, __LINE__);
     }
 # elif 1
     for (i = 0; i < 36; i += 4) {
-      z[i + 0] = mad_f_mul(z[i + 0], window_l[i + 0]);
-      z[i + 1] = mad_f_mul(z[i + 1], window_l[i + 1]);
-      z[i + 2] = mad_f_mul(z[i + 2], window_l[i + 2]);
-      z[i + 3] = mad_f_mul(z[i + 3], window_l[i + 3]);
+      z[i + 0] = mad_f_mul(z[i + 0], window_l(i + 0));
+      z[i + 1] = mad_f_mul(z[i + 1], window_l(i + 1));
+      z[i + 2] = mad_f_mul(z[i + 2], window_l(i + 2));
+      z[i + 3] = mad_f_mul(z[i + 3], window_l(i + 3));
     }
 # else
     for (i =  0; i < 36; ++i) z[i] = mad_f_mul(z[i], window_l[i]);
@@ -2129,23 +2154,23 @@ stack(__FUNCTION__, __FILE__, __LINE__);
 
   case 1:  /* start block */
     for (i =  0; i < 18; i += 3) {
-      z[i + 0] = mad_f_mul(z[i + 0], window_l[i + 0]);
-      z[i + 1] = mad_f_mul(z[i + 1], window_l[i + 1]);
-      z[i + 2] = mad_f_mul(z[i + 2], window_l[i + 2]);
+      z[i + 0] = mad_f_mul(z[i + 0], window_l(i + 0));
+      z[i + 1] = mad_f_mul(z[i + 1], window_l(i + 1));
+      z[i + 2] = mad_f_mul(z[i + 2], window_l(i + 2));
     }
     /*  (i = 18; i < 24; ++i) z[i] unchanged */
-    for (i = 24; i < 30; ++i) z[i] = mad_f_mul(z[i], window_s[i - 18]);
+    for (i = 24; i < 30; ++i) z[i] = mad_f_mul(z[i], window_s(i - 18));
     for (i = 30; i < 36; ++i) z[i] = 0;
     break;
 
   case 3:  /* stop block */
     for (i =  0; i <  6; ++i) z[i] = 0;
-    for (i =  6; i < 12; ++i) z[i] = mad_f_mul(z[i], window_s[i - 6]);
+    for (i =  6; i < 12; ++i) z[i] = mad_f_mul(z[i], window_s(i - 6));
     /*  (i = 12; i < 18; ++i) z[i] unchanged */
     for (i = 18; i < 36; i += 3) {
-      z[i + 0] = mad_f_mul(z[i + 0], window_l[i + 0]);
-      z[i + 1] = mad_f_mul(z[i + 1], window_l[i + 1]);
-      z[i + 2] = mad_f_mul(z[i + 2], window_l[i + 2]);
+      z[i + 0] = mad_f_mul(z[i + 0], window_l(i + 0));
+      z[i + 1] = mad_f_mul(z[i + 1], window_l(i + 1));
+      z[i + 2] = mad_f_mul(z[i + 2], window_l(i + 2));
     }
     break;
   }
@@ -2160,7 +2185,7 @@ static
 void III_imdct_s(mad_fixed_t const X[18], mad_fixed_t z[36])
 {
   mad_fixed_t y[36], *yptr;
-  mad_fixed_t const *wptr;
+  int wptr; //mad_fixed_t const *wptr;
   int w, i;
   register mad_fixed64hi_t hi;
   register mad_fixed64lo_t lo;
@@ -2208,23 +2233,23 @@ stack(__FUNCTION__, __FILE__, __LINE__);
   /* windowing, overlapping and concatenation */
 
   yptr = &y[0];
-  wptr = &window_s[0];
+  wptr=0;//wptr = &window_s[0];
 
   for (i = 0; i < 6; ++i) {
     z[i +  0] = 0;
-    z[i +  6] = mad_f_mul(yptr[ 0 + 0], wptr[0]);
+    z[i +  6] = mad_f_mul(yptr[ 0 + 0], window_s(wptr + 0));
 
-    MAD_F_ML0(hi, lo, yptr[ 0 + 6], wptr[6]);
-    MAD_F_MLA(hi, lo, yptr[12 + 0], wptr[0]);
+    MAD_F_ML0(hi, lo, yptr[ 0 + 6], window_s(wptr + 6));
+    MAD_F_MLA(hi, lo, yptr[12 + 0], window_s(wptr + 0));
 
     z[i + 12] = MAD_F_MLZ(hi, lo);
 
-    MAD_F_ML0(hi, lo, yptr[12 + 6], wptr[6]);
-    MAD_F_MLA(hi, lo, yptr[24 + 0], wptr[0]);
+    MAD_F_ML0(hi, lo, yptr[12 + 6], window_s(wptr + 6));
+    MAD_F_MLA(hi, lo, yptr[24 + 0], window_s(wptr + 0));
 
     z[i + 18] = MAD_F_MLZ(hi, lo);
 
-    z[i + 24] = mad_f_mul(yptr[24 + 6], wptr[6]);
+    z[i + 24] = mad_f_mul(yptr[24 + 6], window_s(wptr + 6));
     z[i + 30] = 0;
 
     ++yptr;

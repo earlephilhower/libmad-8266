@@ -51,6 +51,7 @@ static int16_t scale(mad_fixed_t sample)
 */
 void mad_synth_init(struct mad_synth *synth)
 {
+  stack(__FUNCTION__,__FILE__,__LINE__);
   mad_synth_mute(synth);
 
   synth->phase = 0;
