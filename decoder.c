@@ -431,11 +431,11 @@ int run_sync(struct mad_decoder *decoder)
 	}
       }
 
-      mad_synth_frame(synth, frame);
+ //     mad_synth_frame(synth, frame, decoder->output_func);
 
       if (decoder->output_func) {
-	switch (decoder->output_func(decoder->cb_data,
-				     &frame->header, &synth->pcm)) {
+//  switch (decoder->output_func(decoder->cb_data, &frame->header, &synth->pcm)) {
+  switch (mad_synth_frame(synth, frame, decoder->output_func, decoder->cb_data)) { //decoder->output_func(decoder->cb_data, &frame->header, &synth->pcm)) {
 	case MAD_FLOW_STOP:
 	  goto done;
 	case MAD_FLOW_BREAK:

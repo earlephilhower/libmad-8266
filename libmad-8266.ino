@@ -90,7 +90,7 @@ static enum mad_flow output(void *data,
   unsigned int nchannels, nsamples;
   int16_t const *left_ch, *right_ch;
   Buffer *buffer = reinterpret_cast<Buffer *>(data);
-  
+
   /* pcm->samplerate contains the sampling frequency */
   if (pcm->samplerate != buffer->lastRate) {
     buffer->i2sdac.SetRate(pcm->samplerate);
