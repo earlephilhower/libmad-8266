@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+#include "config.h"
 #include "mad.h"
 #include "AudioFileSourceSPIFFS.h"
 #include "AudioOutputI2SDAC.h"

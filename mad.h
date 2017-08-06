@@ -24,9 +24,6 @@
 extern "C" {
 # endif
 
-# define FPM_MIPS
-
-
 
 # define SIZEOF_INT 4
 # define SIZEOF_LONG 4

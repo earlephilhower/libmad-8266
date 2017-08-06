@@ -34,7 +34,7 @@
 /* Define if your MIPS CPU supports a 2-operand MADD16 instruction. */
 /* #undef HAVE_MADD16_ASM */
 
-#define FPM_DEFAULT 1
+#define FPM_DEFAULT
 
 /* Define if your MIPS CPU supports a 2-operand MADD instruction. */
 #define HAVE_MADD_ASM 1
