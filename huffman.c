@@ -3070,7 +3070,7 @@ const union huffpair const hufftab24[]  PROGMEM = {
 
 /* external tables */
 
-union huffquad const *const mad_huff_quad_table[2] = { hufftabA, hufftabB };
+union huffquad const *const mad_huff_quad_table[2] PROGMEM = { hufftabA, hufftabB };
 
 const struct hufftable const mad_huff_pair_table[32] PROGMEM = {
   /*  0 */ { hufftab0,   0, 0 },
