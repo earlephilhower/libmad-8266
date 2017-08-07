@@ -413,7 +413,7 @@ mad_fixed_t const imdct_s[6][6] = {
 
    window_l[i] = sin((PI / 36) * (i + 1/2))
 */
-static mad_fixed_t window_l(int i)
+static inline mad_fixed_t window_l(int i)
 {
   static mad_fixed_t const window_l_val[36] PROGMEM = {
     MAD_F(0x00b2aa3e) /* 0.043619387 */, MAD_F(0x0216a2a2) /* 0.130526192 */,
@@ -448,7 +448,7 @@ static mad_fixed_t window_l(int i)
 
    window_s[i] = sin((PI / 12) * (i + 1/2))
 */
-static mad_fixed_t window_s(int i)
+static inline mad_fixed_t window_s(int i)
 {
   static mad_fixed_t const window_s_val[12] PROGMEM = {
     MAD_F(0x0216a2a2) /* 0.130526192 */, MAD_F(0x061f78aa) /* 0.382683432 */,
@@ -939,7 +939,7 @@ mad_fixed_t III_requantize(unsigned int value, signed int exp)
   else {
     if (exp >= 5) {
       /* overflow */
-# if defined(DEBUG)
+# if 0 && defined(DEBUG)
       fprintf(stderr, "requantize overflow (%f * 2^%d)\n",
               mad_f_todouble(requantized), exp);
 # endif
@@ -1310,12 +1310,14 @@ y_final:
    NAME:	III_reorder()
    DESCRIPTION:	reorder frequency lines of a short block into subband order
 */
-static mad_fixed_t tmp[32][3][6]; // Move out to save stack in III_reorder
 static
-void III_reorder(mad_fixed_t xr[576], struct channel const *channel,
+enum mad_error III_reorder(mad_fixed_t xr[576], struct channel const *channel,
                  unsigned int const sfbwidth[39])
 {
   unsigned int sb, l, f, w, sbw[3], sw[3];
+  mad_fixed_t *tmp; // [32][3][6]
+  tmp = (mad_fixed_t*)malloc(sizeof(mad_fixed_t)*32*3*6);
+  if (!tmp) return MAD_ERROR_NOMEM;
   stack(__FUNCTION__, __FILE__, __LINE__);
 
   /* this is probably wrong for 8000 Hz mixed blocks */
@@ -1343,7 +1345,7 @@ void III_reorder(mad_fixed_t xr[576], struct channel const *channel,
       w = (w + 1) % 3;
     }
 
-    tmp[sbw[w]][w][sw[w]++] = xr[l];
+    tmp[ (sbw[w]*3*6) + (w*6) + (sw[w]++) ] = xr[l];
 
     if (sw[w] == 6) {
       sw[w] = 0;
@@ -1351,7 +1353,10 @@ void III_reorder(mad_fixed_t xr[576], struct channel const *channel,
     }
   }
 
-  memcpy(&xr[18 * sb], &tmp[sb], (576 - 18 * sb) * sizeof(mad_fixed_t));
+  memcpy(&xr[18 * sb], &tmp[sb * 3 * 6], (576 - 18 * sb) * sizeof(mad_fixed_t));
+
+  free(tmp);
+  return MAD_ERROR_NONE;
 }
 
 /*
@@ -2391,13 +2396,20 @@ void III_freqinver(mad_fixed_t sample[18][32], unsigned int sb)
    NAME:	III_decode()
    DESCRIPTION:	decode frame main_data
 */
-static mad_fixed_t xr[2][576];
 static
 enum mad_error III_decode(struct mad_bitptr *ptr, struct mad_frame *frame,
                           struct sideinfo *si, unsigned int nch)
 {
   struct mad_header *header = &frame->header;
+  mad_fixed_t *xr[2]; // Moved from stack to dynheap
+  mad_fixed_t *xr_raw; // [2][576]
   unsigned int sfreqi, ngr, gr;
+  xr_raw = (mad_fixed_t*)malloc(sizeof(mad_fixed_t) * 2 * 576);
+  if (!xr_raw)
+    return MAD_ERROR_NOMEM;
+  xr[0] = xr_raw;
+  xr[1] = xr_raw + 576;
+
   stack(__FUNCTION__, __FILE__, __LINE__);
   {
     unsigned int sfreq;
@@ -2422,7 +2434,6 @@ enum mad_error III_decode(struct mad_bitptr *ptr, struct mad_frame *frame,
   for (gr = 0; gr < ngr; ++gr) {
     struct granule *granule = &si->gr[gr];
     unsigned int const *sfbwidth[2];
-    //mad_fixed_t xr[2][576]; // She's muc too big for me
     unsigned int ch;
     enum mad_error error;
 
@@ -2447,16 +2458,20 @@ enum mad_error III_decode(struct mad_bitptr *ptr, struct mad_frame *frame,
       }
 
       error = III_huffdecode(ptr, xr[ch], channel, sfbwidth[ch], part2_length);
-      if (error)
+      if (error) {
+        free(xr_raw);
         return error;
+      }
     }
 
     /* joint stereo processing */
 
     if (header->mode == MAD_MODE_JOINT_STEREO && header->mode_extension) {
-      error = III_stereo(xr, granule, header, sfbwidth[0]);
-      if (error)
+      error = III_stereo(xr_raw, granule, header, sfbwidth[0]);
+      if (error) {
+        free(xr_raw);
         return error;
+      }
     }
 
     /* reordering, alias reduction, IMDCT, overlap-add, frequency inversion */
@@ -2468,7 +2483,11 @@ enum mad_error III_decode(struct mad_bitptr *ptr, struct mad_frame *frame,
       mad_fixed_t output[36];
 
       if (channel->block_type == 2) {
-        III_reorder(xr[ch], channel, sfbwidth[ch]);
+        error = III_reorder(xr[ch], channel, sfbwidth[ch]);
+        if (error) {
+          free(xr_raw);
+          return error;
+        }
 
 # if !defined(OPT_STRICT)
         /*
@@ -2552,6 +2571,7 @@ enum mad_error III_decode(struct mad_bitptr *ptr, struct mad_frame *frame,
     }
   }
 
+  free(xr_raw);
   return MAD_ERROR_NONE;
 }
 
