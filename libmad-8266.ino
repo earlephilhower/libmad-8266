@@ -6,22 +6,24 @@
 #include "AudioOutputI2SDAC.h"
 #include "AudioOutputI2SNoDAC.h"
 
+#undef stack
 extern "C" {
   #include <cont.h>
   extern cont_t g_cont;
 
-  void stack(char *s, char *t, int i) {
+  void stack(const char *s, const char *t, int i) {
     register uint32_t *sp asm("a1");
     int freestack = 4 * (sp - g_cont.stack);
     int freeheap = ESP.getFreeHeap();
     static int laststack, lastheap;
-//    if (laststack!=freestack|| lastheap !=freeheap)
-//      Serial.printf("%s: FREESTACK=%d, FREEHEAP=%d\n", s, /*t, i,*/ freestack, /*cont_get_free_stack(&g_cont),*/ freeheap); Serial.flush();
+    if (laststack!=freestack|| lastheap !=freeheap)
+      Serial.printf("%s: FREESTACK=%d, FREEHEAP=%d\n", s, /*t, i,*/ freestack, /*cont_get_free_stack(&g_cont),*/ freeheap); Serial.flush();
     if (freestack < 256) {Serial.printf("out of stack!\n"); while (1); }
     if (freeheap < 1024) {Serial.printf("out of heap!\n"); while (1); }
     laststack=freestack;lastheap=freeheap;
   }
 }
+
 /*
  * This is a private message structure. A generic pointer to this structure
  * is passed to each of the callback functions. Put here any data you need
@@ -95,6 +97,7 @@ static enum mad_flow output(void *data,
 
   /* pcm->samplerate contains the sampling frequency */
   if (pcm->samplerate != buffer->lastRate) {
+    stack(__FUNCTION__, __FILE__, __LINE__);
     buffer->i2sdac.SetRate(pcm->samplerate);
     buffer->lastRate = pcm->samplerate;
     Serial.printf("Setting sample rate: %d\n", pcm->samplerate);
@@ -186,6 +189,7 @@ void setup()
   delay(1000);
   Serial.println("Begin recording...");
   delay(1000);
+  stack(__FUNCTION__, __FILE__, __LINE__);
   decode();
 }
 

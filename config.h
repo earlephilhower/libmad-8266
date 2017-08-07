@@ -4,6 +4,9 @@
 /* Define to enable diagnostic debugging support. */
 /* #undef DEBUG */
 
+// Uncomment to show heap and stack space on entry
+#define stack(a,b,c)
+
 /* Define to enable experimental code. */
 /* #undef EXPERIMENTAL */
 
