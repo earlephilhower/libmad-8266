@@ -892,6 +892,7 @@ enum mad_flow {
 void mad_synth_mute(struct mad_synth *);
 
 enum mad_flow mad_synth_frame(struct mad_synth *, struct mad_frame const *, enum mad_flow (*output_func)(void *s, struct mad_header const *, struct mad_pcm *), void *cbdata );
+enum mad_flow mad_synth_frame_onens(struct mad_synth *synth, struct mad_frame const *frame, unsigned int ns);
 
 # endif
 

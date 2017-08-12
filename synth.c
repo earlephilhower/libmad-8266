@@ -574,7 +574,7 @@ void synth_full(struct mad_synth *, struct mad_frame const *,
 */
 static
 enum mad_flow synth_full(struct mad_synth *synth, struct mad_frame const *frame,
-                unsigned int nch, unsigned int ns,
+                unsigned int nch, unsigned int startns, unsigned int endns,
                 enum mad_flow (*output_func)(void *s, struct mad_header const *, struct mad_pcm *), void *cbdata)
 {
   unsigned int phase, ch, s, sb, pe, po;
@@ -587,7 +587,7 @@ enum mad_flow synth_full(struct mad_synth *synth, struct mad_frame const *frame,
   register mad_fixed64lo_t lo;
   stack(__FUNCTION__, __FILE__, __LINE__);
 
-  for (int start = 0; start < ns; start ++) {
+  for (int start = startns; start < endns; start ++) {
     for (ch = 0; ch < nch; ++ch) {
       sbsample = &frame->sbsample[ch];
       filter   = &synth->filter[ch];
@@ -721,7 +721,7 @@ enum mad_flow synth_full(struct mad_synth *synth, struct mad_frame const *frame,
 */
 static
 enum mad_flow synth_half(struct mad_synth *synth, struct mad_frame const *frame,
-                unsigned int nch, unsigned int ns,
+                unsigned int nch, unsigned int startns, unsigned int endns,
                 enum mad_flow (*output_func)(void *s, struct mad_header const *, struct mad_pcm *), void *cbdata )
 {
   unsigned int phase, ch, s, sb, pe, po;
@@ -733,7 +733,7 @@ enum mad_flow synth_half(struct mad_synth *synth, struct mad_frame const *frame,
   register mad_fixed64hi_t hi;
   register mad_fixed64lo_t lo;
   stack(__FUNCTION__, __FILE__, __LINE__);
-  for (int start = 0; start < ns; start ++) {
+  for (int start = startns; start < endns; start ++) {
     for (ch = 0; ch < nch; ++ch) {
       sbsample = &frame->sbsample[ch];
       filter   = &synth->filter[ch];
@@ -871,7 +871,7 @@ enum mad_flow mad_synth_frame(struct mad_synth *synth, struct mad_frame const *f
 //void mad_synth_frame(struct mad_synth *synth, struct mad_frame const *frame)
 {
   unsigned int nch, ns;
-  enum mad_flow (*synth_frame)(struct mad_synth *, struct mad_frame const *, unsigned int, unsigned int, enum mad_flow (*output_func)(), void *);
+  enum mad_flow (*synth_frame)(struct mad_synth *, struct mad_frame const *, unsigned int, unsigned int, unsigned int, enum mad_flow (*output_func)(), void *);
 
   nch = MAD_NCHANNELS(&frame->header);
   ns  = MAD_NSBSAMPLES(&frame->header);
@@ -889,9 +889,41 @@ enum mad_flow mad_synth_frame(struct mad_synth *synth, struct mad_frame const *f
     synth_frame = synth_half;
   }
 
-  enum mad_flow ret = synth_frame(synth, frame, nch, ns, output_func, cbdata);
+  enum mad_flow ret;
+  for (int i=0; i<ns; i++)
+    ret = synth_frame(synth, frame, nch, i/*0*/, i+1/*ns*/, output_func, cbdata);
 
   synth->phase = (synth->phase + ns) % 16;
+
+  return ret;
+}
+
+// Synthesize a single NS of the frame, return in the synth->pcm.samples
+// Up to caller to increment synth->phase, only call proper # of ns
+enum mad_flow mad_synth_frame_onens(struct mad_synth *synth, struct mad_frame const *frame, unsigned int ns)
+{
+  unsigned int nch; //, ns;
+  enum mad_flow (*synth_frame)(struct mad_synth *, struct mad_frame const *, unsigned int, unsigned int, unsigned int, enum mad_flow (*output_func)(), void *);
+
+  nch = MAD_NCHANNELS(&frame->header);
+//  ns  = MAD_NSBSAMPLES(&frame->header);
+
+  synth->pcm.samplerate = frame->header.samplerate;
+  synth->pcm.channels   = nch;
+  synth->pcm.length     = 32;// * ns;
+
+  synth_frame = synth_full;
+
+  if (frame->options & MAD_OPTION_HALFSAMPLERATE) {
+    synth->pcm.samplerate /= 2;
+    synth->pcm.length     /= 2;
+
+    synth_frame = synth_half;
+  }
+  enum mad_flow ret = synth_frame(synth, frame, nch, ns, ns+1, NULL, NULL);
+
+  if (ns==MAD_NSBSAMPLES(&frame->header)-1)
+    synth->phase = (synth->phase + MAD_NSBSAMPLES(&frame->header)) % 16;
 
   return ret;
 }

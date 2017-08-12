@@ -3,6 +3,7 @@
 #include "config.h"
 #include "mad.h"
 #include "AudioFileSourceSPIFFS.h"
+#include "AudioGeneratorMP3.h"
 #include "AudioOutputI2SDAC.h"
 #include "AudioOutputI2SNoDAC.h"
 
@@ -23,7 +24,7 @@ extern "C" {
     laststack=freestack;lastheap=freeheap;
   }
 }
-
+#if 0
 /*
  * This is a private message structure. A generic pointer to this structure
  * is passed to each of the callback functions. Put here any data you need
@@ -36,7 +37,7 @@ class Buffer
     Buffer() { lastRate=0; lastChannels=0; lastReadPos = 0;}
     unsigned char space[2048];
     AudioFileSourceSPIFFS file;
-    AudioOutputI2SDAC i2sdac;
+    AudioOutputI2SNoDAC i2sdac;
     int lastRate;
     int lastChannels;
     int lastReadPos;
@@ -62,6 +63,7 @@ static enum mad_flow input(void *data,
   if (unused == sizeof(buffer->space)) 
     return MAD_FLOW_STOP;
 
+Serial.printf("unused=%d, fpos=%d\n", unused, buffer->file.getPos());
   buffer->lastReadPos = buffer->file.getPos() - unused;
   int len = sizeof(buffer->space) - unused;
   len = buffer->file.read(buffer->space + unused, len);
@@ -163,6 +165,7 @@ static int decode()
   buffer->file.open("/jamonit.mp3");
   buffer->i2sdac.begin();
   buffer->i2sdac.SetBitsPerSample(16);
+  buffer->i2sdac.SetOversampling(32);
 
   /* configure input, output, and error functions */
 
@@ -181,7 +184,6 @@ static int decode()
   return result;
 }
 
-
 void setup()
 {
   WiFi.forceSleepBegin();
@@ -195,7 +197,31 @@ void setup()
 
 void loop()
 {
-  Serial.println("loop()");
-  delay(1000);  
+  Serial.println("mp3 done");
+}
+#else
+AudioGeneratorMP3 *mp3;
+AudioFileSourceSPIFFS *file;
+AudioOutputI2SNoDAC *out;
+void setup()
+{
+  WiFi.forceSleepBegin();
+  Serial.begin(115200);
+  delay(1000);
+  Serial.println("Begin recording...");
+  delay(1000);
+  stack(__FUNCTION__, __FILE__, __LINE__);
+  SPIFFS.begin();
+  file = new AudioFileSourceSPIFFS("/jamonit.mp3");
+  out = new AudioOutputI2SNoDAC();
+  mp3 = new AudioGeneratorMP3();
+  mp3->begin(file, out);
 }
 
+void loop()
+{
+  if (mp3->isRunning()) mp3->loop();
+  else {Serial.println("mp3 done\n"); delay(1000); }
+}
+
+#endif
