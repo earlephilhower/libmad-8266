@@ -44,7 +44,7 @@ class AudioGeneratorMP3 : AudioGenerator
     int buffLen;
     unsigned char *buff;
     int lastReadPos;
-    int lastRate;
+    unsigned int lastRate;
     int lastChannels;
     
     // Decoding bits

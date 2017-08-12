@@ -67,7 +67,7 @@ enum mad_flow AudioGeneratorMP3::ErrorToFlow()
 {
   char err[64];
   strcpy_P(err, mad_stream_errorstr(&stream));
-  Serial.printf("Decoding error 0x%04x (%s) at byte offset %p\n", stream.error, err, (stream.this_frame - buff) + lastReadPos);
+  Serial.printf("Decoding error 0x%04x (%s) at byte offset %d\n", stream.error, err, (stream.this_frame - buff) + lastReadPos);
   Serial.flush();
   return MAD_FLOW_CONTINUE;
 }
@@ -88,7 +88,7 @@ enum mad_flow AudioGeneratorMP3::Input()
   if (len == 0) return MAD_FLOW_STOP;
 
   mad_stream_buffer(&stream, buff, len + unused);
-  
+
   return MAD_FLOW_CONTINUE;
 }
 
@@ -109,8 +109,9 @@ bool AudioGeneratorMP3::DecodeNextFrame()
       return true;
     }
     inInnerDecode = false;
-  }
-  while (stream.error == MAD_ERROR_BUFLEN);
+  } while (stream.error == MAD_ERROR_BUFLEN);
+
+  return false;
 }
 
 bool AudioGeneratorMP3::GetOneSample(int16_t sample[2])
@@ -142,6 +143,8 @@ bool AudioGeneratorMP3::GetOneSample(int16_t sample[2])
         case MAD_FLOW_STOP:
         case MAD_FLOW_BREAK:
           return false; // Either way we're done
+        default:
+          break; // Do nothing
     }
     // for IGNORE and CONTINUE, just play what we have now
     sample[AudioOutput::LEFTCHANNEL ] = synth.pcm.samples[0][samplePtr];
