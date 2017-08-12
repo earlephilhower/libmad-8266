@@ -19,6 +19,8 @@
    $Id: layer3.c,v 1.43 2004/01/23 09:41:32 rob Exp $
 */
 
+#pragma GCC optimize ("O3")
+
 #include <pgmspace.h>
 #  include "config.h"
 

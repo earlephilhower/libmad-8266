@@ -19,6 +19,8 @@
  * $Id: version.c,v 1.15 2004/01/23 09:41:33 rob Exp $
  */
 
+#pragma GCC optimize ("O3")
+
 #  include "config.h"
 
 # include "global.h"

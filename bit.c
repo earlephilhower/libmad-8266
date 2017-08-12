@@ -19,6 +19,8 @@
  * $Id: bit.c,v 1.12 2004/01/23 09:41:32 rob Exp $
  */
 
+#pragma GCC optimize ("O3")
+
 #include <pgmspace.h>
 #  include "config.h"
 

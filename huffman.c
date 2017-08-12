@@ -19,6 +19,8 @@
  * $Id: huffman.c,v 1.10 2004/01/23 09:41:32 rob Exp $
  */
 
+#pragma GCC optimize ("O3")
+
 #include <pgmspace.h>
 #  include "config.h"
 
