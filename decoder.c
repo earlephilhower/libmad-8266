@@ -347,7 +347,6 @@ int run_sync(struct mad_decoder *decoder)
   mad_stream_options(stream, decoder->options);
 
   do {
-    printf("input\n");
     switch (decoder->input_func(decoder->cb_data, stream)) {
       case MAD_FLOW_STOP:
         goto done;
@@ -402,7 +401,6 @@ int run_sync(struct mad_decoder *decoder)
             break;
         }
       }
-printf("frame_Decode\n");
       if (mad_frame_decode(frame, stream) == -1) {
         if (!MAD_RECOVERABLE(stream->error))
           break;
@@ -436,7 +434,6 @@ printf("frame_Decode\n");
       }
 
       //     mad_synth_frame(synth, frame, decoder->output_func);
-printf("outputfcn\n");
       if (decoder->output_func) {
         //  switch (decoder->output_func(decoder->cb_data, &frame->header, &synth->pcm)) {
         switch (mad_synth_frame(synth, frame, decoder->output_func, decoder->cb_data)) { //decoder->output_func(decoder->cb_data, &frame->header, &synth->pcm)) {
